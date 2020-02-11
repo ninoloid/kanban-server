@@ -1,0 +1,69 @@
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  class User extends sequelize.Sequelize.Model {
+    static associate(models) {
+      // associations can be defined here
+    }
+  }
+  User.init({
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [10],
+          msg: "The minimum length of email is 10"
+        },
+        notNull: {
+          args: true,
+          msg: "Email cannot be empty"
+        },
+        isUnique(email) {
+          return User.findOne({ where: { email } })
+            .then(data => {
+              if (data) throw new Error('Username already registered')
+            })
+        }
+      }
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isEmail: {
+          args: true,
+          msg: "Invalid email format"
+        },
+        len: {
+          args: [10],
+          msg: "The minimum length of email is 10"
+        },
+        notNull: {
+          args: true,
+          msg: "Email cannot be empty"
+        },
+        isUnique(email) {
+          return User.findOne({ where: { email } })
+            .then(data => {
+              if (data) throw new Error('Email already registered')
+            })
+        }
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [6],
+          msg: "The minimum length of password is 6"
+        },
+        notNull: {
+          args: true,
+          msg: "Password cannot be empty"
+        }
+      }
+    }
+  }, { sequelize });
+  return User;
+};
