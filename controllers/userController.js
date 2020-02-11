@@ -1,11 +1,13 @@
 const { User } = require('../models')
 const { compare } = require('../helpers/hash')
 const { sign } = require('../helpers/jwt')
+const { Op } = require('sequelize')
 
 module.exports = {
   register(req, res, next) {
-    const { email, password } = req.body
+    const { username, email, password } = req.body
     User.create({
+      username,
       email,
       password
     })
@@ -22,13 +24,20 @@ module.exports = {
   },
 
   login(req, res, next) {
-    const { email, password } = req.body
-    User.findOne({ where: { email } })
+    const { identification, password } = req.body
+    User.findOne({
+      where: {
+        [Op.or]: [
+          { username: identification },
+          { email: identification }
+        ]
+      }
+    })
       .then(user => {
         const valid = compare(password, user.password)
         if (!valid) {
           // invalid password
-          next({ msg: "Invalid Username / Password" })
+          next({ msg: "Invalid Username, Email, or Password" })
         } else {
           const payload = {
             id: user.id
@@ -41,7 +50,7 @@ module.exports = {
       })
       .catch(err => {
         // invalid email
-        next({ msg: "Invalid Username / Password" })
+        next({ msg: "Invalid Username, Email, or Password" })
       })
   }
 }

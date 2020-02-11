@@ -1,5 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
+  const { hash } = require('../helpers/hash')
+
   class User extends sequelize.Sequelize.Model {
     static associate(models) {
       // associations can be defined here
@@ -11,12 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         len: {
-          args: [10],
-          msg: "The minimum length of email is 10"
+          args: [6],
+          msg: "The minimum length of username is 6"
         },
         notNull: {
           args: true,
-          msg: "Email cannot be empty"
+          msg: "Username cannot be empty"
         },
         isUnique(email) {
           return User.findOne({ where: { email } })
@@ -64,6 +66,13 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     }
-  }, { sequelize });
+  }, {
+    sequelize,
+    hooks: {
+      beforeCreate: user => {
+        user.password = hash(user.password)
+      }
+    }
+  });
   return User;
 };

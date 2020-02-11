@@ -13,7 +13,7 @@ module.exports = (err, req, res, next) => {
   } else if (err.msg === 'Not Found') {
     status = 404
     errObj.msg = err.msg
-  } else if (err.msg === 'Invalid Username / Password') {
+  } else if (err.msg === 'Invalid Username, Email, or Password') {
     status = 400
     errObj.msg = err.msg
   } else if (err.msg === 'User has been banned') {
