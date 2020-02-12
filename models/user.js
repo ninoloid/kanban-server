@@ -20,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
           args: true,
           msg: "Username cannot be empty"
         },
-        isUnique(email) {
-          return User.findOne({ where: { email } })
+        isUnique(username) {
+          return User.findOne({ where: { username } })
             .then(data => {
               if (data) throw new Error('Username already registered')
             })

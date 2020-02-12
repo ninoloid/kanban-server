@@ -1,4 +1,4 @@
-const { Project, UserProject, Task } = require('../models')
+const { Project, UserProject, Task, User } = require('../models')
 
 module.exports = {
   addProject(req, res, next) {
@@ -21,26 +21,22 @@ module.exports = {
       .catch(next)
   },
 
-  // deleteProject(req, res, next) {
-  //   const { id } = req.params
-  //   UserProject.destroy({ where: { ProjectId: id } })
-  //     .then(deleted => {
-  //       if (deleted) {
-  //         Project.destroy({ where: { id } })
-  //           .then(deleted => {
-  //             if (deleted) {
-  //               res
-  //                 .status(200)
-  //                 .json({ "Project deleted successfully"})
-  //             } else {
-  //               next({ msg: "Not Found" })
-  //             }
-  //           })
-  //       } else {
-  //         next({ msg: "Not Found" })
-  //       }
-  //     })
-  // }
+  getProject(req, res, next) {
+    Project.findAll({ include: User })
+      .then(projects => {
+        const filtered = []
+        projects.forEach(project => {
+          // res.send(project.Users)
+          project.Users.forEach(user => {
+            if (user.id === req.currentUserId) {
+              filtered.push(project)
+            }
+          })
+        })
+        res.status(200).json(filtered)
+      })
+      .catch(next)
+  },
 
   deleteProject(req, res, next) {
     const { id } = req.params

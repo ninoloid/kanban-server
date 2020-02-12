@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   class Project extends sequelize.Sequelize.Model {
     static associate(models) {
-      // associations can be defined here
+      Project.belongsToMany(models.User, { through: models.UserProject })
     }
   }
   Project.init({
