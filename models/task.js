@@ -2,8 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   class Task extends sequelize.Sequelize.Model {
     static associate(models) {
-      Task.belongsToMany(models.User, { through: models.UserTask })
-      Task.hasOne(models.Category)
+      Task.belongsTo(models.Category)
     }
   }
   Task.init({
@@ -46,6 +45,20 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: {
           args: true,
           msg: "Category ID cannot be empty"
+        }
+      }
+    },
+    ProjectId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          args: true,
+          msg: "Project ID cannot be empty"
+        },
+        notEmpty: {
+          args: true,
+          msg: "Project ID cannot be empty"
         }
       }
     }

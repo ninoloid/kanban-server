@@ -1,5 +1,5 @@
 const { User } = require('../models')
-const verify = require('../helpers/jwt')
+const { verify } = require('../helpers/jwt')
 
 module.exports = (req, res, next) => {
   const token = req.headers.access_token

@@ -17,6 +17,9 @@ module.exports = {
       CategoryId: {
         type: Sequelize.INTEGER
       },
+      ProjectId: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

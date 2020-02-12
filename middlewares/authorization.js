@@ -1,20 +1,25 @@
-const { Task, User } = require('../models')
+const { Task, UserProject } = require('../models')
 
 module.exports = (req, res, next) => {
   const { id } = req.params
-  Task.findOne({ where: { id }, include: User })
+  const UserId = req.currentUserId
+  Task.findOne({ where: { id } })
     .then(task => {
       if (!task) {
         next({ msg: 'Not Found' })
       } else {
-        let author = false
-        task.Users.forEach(user => {
-          if (user.id === req.currentUserId) {
-            author = true
-          }
-        });
-        author ? next() : next({ msg: 'Not authorized' })
+        UserProject.findAll({ where: { UserId } })
+          .then(projects => {
+            let author = false
+            projects.forEach(project => {
+              if (project.ProjectId === task.ProjectId) {
+                author = true
+              }
+            })
+            author ? next() : next({ msg: 'Not authorized' })
+          })
+          .catch(next)
       }
     })
-    .catch(err => next(err))
+    .catch(next)
 }

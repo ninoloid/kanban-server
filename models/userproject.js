@@ -1,13 +1,13 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  class UserTask extends sequelize.Sequelize.Model {
+  class UserProject extends sequelize.Sequelize.Model {
     static associate(models) {
       // associations can be defined here
     }
   }
-  UserTask.init({
+  UserProject.init({
     UserId: DataTypes.INTEGER,
-    TaskId: DataTypes.INTEGER
+    ProjectId: DataTypes.INTEGER
   }, { sequelize });
-  return UserTask;
+  return UserProject;
 };

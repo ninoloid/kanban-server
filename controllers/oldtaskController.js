@@ -1,13 +1,21 @@
-const { Task, Category } = require('../models')
+const { Task, UserTask, User } = require('../models')
 const { Op } = require('sequelize')
 
 module.exports = {
   showAll(req, res, next) {
-    Task.findAll({ include: Category })
+    Task.findAll({ include: User })
       .then(tasks => {
+        const filtered = []
+        tasks.forEach(task => {
+          task.Users.forEach(user => {
+            if (user.id === req.currentUserId) {
+              filtered.push(task)
+            }
+          })
+        })
         res
           .status(200)
-          .json(tasks.reverse())
+          .json(filtered.reverse())
       })
       .catch(next)
   },
@@ -34,29 +42,67 @@ module.exports = {
           { title: { [Op.iLike]: `%${words}%` } },
           { description: { [Op.iLike]: `%${words}%` } }
         ]
-      }, include: Category
+      }, include: User
     })
       .then(tasks => {
+        const filtered = []
+        tasks.forEach(task => {
+          task.Users.forEach(user => {
+            if (user.id === req.currentUserId) {
+              filtered.push(task)
+            }
+          })
+        })
         res
           .status(200)
-          .json(tasks.reverse())
+          .json(filtered.reverse())
       })
       .catch(next)
   },
 
   addTask(req, res, next) {
+    const UserId = req.currentUserId
     const { title, description, CategoryId, ProjectId } = req.body
 
     Task.create({
       title,
       description,
-      CategoryId,
-      ProjectId
+      CategoryId
     })
       .then(created => {
-        res
-          .status(201)
-          .json(created)
+        UserTask.findOne({ where: UserId })
+          .then(task => {
+            if (task) {
+              UserTask.findAll({ where: { TaskId: task.TaskId } })
+                .then(users => {
+                  users.forEach(user => {
+                    UserTask.create({
+                      UserId: user.UserId,
+                      TaskId: created.id
+                    })
+                      .then(() => {
+                        res
+                          .status(201)
+                          .json(created)
+                      })
+                      .catch(next)
+                  });
+                })
+                .catch(next)
+            } else {
+              UserTask.create({
+                UserId,
+                TaskId: created.id
+              })
+                .then(() => {
+                  res
+                    .status(201)
+                    .json(created)
+                })
+                .catch(next)
+            }
+          })
+          .catch(next)
       })
       .catch(next)
   },
@@ -108,6 +154,7 @@ module.exports = {
         if (!result) {
           next({ msg: "Not Found" })
         } else {
+          UserTask.destroy({ where: { TaskId: req.params.id } })
           res
             .status(200)
             .json({ msg: "Task deleted successfully" })
@@ -115,4 +162,5 @@ module.exports = {
       })
       .catch(next)
   }
+
 }
