@@ -4,7 +4,6 @@ const { Op } = require('sequelize')
 module.exports = {
   showAll(req, res, next) {
     const { ProjectId } = req.body
-    console.log(ProjectId)
     Task.findAll({ where: { ProjectId }, include: Category })
       .then(tasks => {
         res

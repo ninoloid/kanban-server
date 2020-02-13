@@ -26,7 +26,6 @@ module.exports = {
       .then(projects => {
         const filtered = []
         projects.forEach(project => {
-          // res.send(project.Users)
           project.Users.forEach(user => {
             if (user.id === req.currentUserId) {
               filtered.push(project)
@@ -56,5 +55,7 @@ module.exports = {
         }
       })
       .catch(next)
-  }
+  },
+
+  // addPersonToProject
 }
