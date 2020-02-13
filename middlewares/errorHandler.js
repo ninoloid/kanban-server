@@ -33,6 +33,15 @@ module.exports = (err, req, res, next) => {
   } else if (err.msg === 'Please login first') {
     status = 403
     errObj.msg = err.msg
+  } else if (err.msg === 'User already added as project member') {
+    status = 403
+    errObj.msg = err.msg
+  } else if (err.msg === 'Failed to add user to project. User not found') {
+    status = 404
+    errObj.msg = err.msg
+  } else if (err.msg === "Sorry, you're not an administrator of this project") {
+    status = 403
+    errObj.msg = err.msg
   }
 
   res

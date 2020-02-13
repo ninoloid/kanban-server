@@ -4,8 +4,10 @@ module.exports = {
   addProject(req, res, next) {
     const { name } = req.body
     const UserId = req.currentUserId
+    const authorUsername = req.currentUsername
     Project.create({
-      name
+      name,
+      authorUsername
     })
       .then(project => {
         return UserProject.create({
@@ -22,7 +24,12 @@ module.exports = {
   },
 
   getProject(req, res, next) {
-    Project.findAll({ include: User })
+    Project.findAll({
+      include: {
+        model: User,
+        attributes: ['id', 'username', 'email']
+      }
+    })
       .then(projects => {
         const filtered = []
         projects.forEach(project => {
@@ -57,5 +64,82 @@ module.exports = {
       .catch(next)
   },
 
-  // addPersonToProject
+  addPersonToProject(req, res, next) {
+    const { identification, ProjectId } = req.body
+    let UserId;
+    User.findOne({ where: { username: identification } })
+      .then(user => {
+        if (!user) {
+          return User.findOne({ where: { email: identification } })
+        } else return user
+      })
+      .then(user => {
+        if (user) {
+          UserId = user.id
+          UserProject.findOne({ where: { UserId: user.id, ProjectId } })
+            .then(project => {
+              if (!project) {
+                return UserProject.create({
+                  UserId,
+                  ProjectId
+                })
+              } else {
+                next({ msg: "User already added as project member" })
+              }
+            })
+            .then(created => {
+              if (!created) {
+                next({ msg: "Failed to add member to this project" })
+              } else {
+                res
+                  .status(201)
+                  .json({ msg: `User '${identification}' added to project` })
+              }
+            })
+            .catch(next)
+        } else {
+          next({ msg: "Failed to add user to project. User not found" })
+        }
+      })
+      .catch(next)
+  },
+
+  getUserOnProject(req, res, next) {
+    const { id } = req.params
+    Project.findOne({
+      where: {
+        id
+      },
+      include: {
+        model: User,
+        attributes: ['id', 'username', 'email']
+      }
+    })
+      .then(project => {
+        if (!project) {
+          next({ msg: "Not Found" })
+        } else {
+          res
+            .status(200)
+            .json(project)
+        }
+      })
+      .catch(next)
+  },
+
+  deletePersonFromProject(req, res, next) {
+    const { id } = req.params
+    const { UserId } = req.body
+    UserProject.destroy({ where: { UserId, ProjectId: id } })
+      .then(deleted => {
+        if (deleted) {
+          res
+            .status(200)
+            .json({ msg: "User successfully deleted from project member" })
+        } else {
+          next({ msg: "Not Found" })
+        }
+      })
+      .catch(next)
+  }
 }

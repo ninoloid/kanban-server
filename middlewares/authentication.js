@@ -11,6 +11,7 @@ module.exports = (req, res, next) => {
           .then(user => {
             if (user) {
               req.currentUserId = user.id
+              req.currentUsername = user.username
               next()
             } else {
               next({ msg: 'User has been banned' })

@@ -1,4 +1,4 @@
-const { Task, UserProject, Project } = require('../models')
+const { Task, UserProject, Project, User } = require('../models')
 
 module.exports = {
   taskAuthorization(req, res, next) {
@@ -27,8 +27,13 @@ module.exports = {
 
   projectAuthorization(req, res, next) {
     const { id } = req.params
-    console.log('idnyaaaaaaaa', id)
-    Project.findAll({ where: { id } })
+    Project.findOne({
+      where: { id },
+      include: {
+        model: User,
+        attributes: ['id', 'username', 'email']
+      }
+    })
       .then(project => {
         if (!project) {
           next({ msg: 'Not Found' })
@@ -40,6 +45,21 @@ module.exports = {
             }
           })
           author ? next() : next({ msg: 'Not authorized' })
+        }
+      })
+      .catch(next)
+  },
+
+  projectOwnerAuthorization(req, res, next) {
+    const { id } = req.params
+    Project.findOne({
+      where: { id }
+    })
+      .then(project => {
+        if (!project) {
+          next({ msg: 'Not Found' })
+        } else {
+          project.authorUsername === req.currentUsername ? next() : next({ msg: "Sorry, you're not an administrator of this project" })
         }
       })
       .catch(next)

@@ -19,6 +19,20 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Project name cannot be empty"
         }
       }
+    },
+    authorUsername: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          args: true,
+          msg: "Author's username cannot be empty"
+        },
+        notEmpty: {
+          args: true,
+          msg: "Author's username cannot be empty"
+        }
+      }
     }
   }, { sequelize });
   return Project;
