@@ -64,12 +64,11 @@ module.exports = {
 
   updateTask(req, res, next) {
     const { id } = req.params
-    const { title, description, CategoryId } = req.body
+    const { title, description } = req.body
 
     Task.update({
       title,
-      description,
-      CategoryId
+      description
     }, { where: { id } })
       .then(result => {
         if (result[0]) {
